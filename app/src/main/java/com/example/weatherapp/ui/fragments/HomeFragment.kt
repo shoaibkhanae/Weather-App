@@ -1,6 +1,7 @@
 package com.example.weatherapp.ui.fragments
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -31,6 +32,9 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 
 
 class HomeFragment : Fragment() {
@@ -72,9 +76,11 @@ class HomeFragment : Fragment() {
         return view
     }
 
+    @SuppressLint("SimpleDateFormat")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        val sdf = SimpleDateFormat("dd/M/yyyy")
+        val currentDate = sdf.format(Date())
         
         binding?.etSearch?.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -90,6 +96,7 @@ class HomeFragment : Fragment() {
                 Temperature.text = it.main.temp.toString()
                 cityName.text = it.name
                 country.text = it.sys.country
+                date.text = "$currentDate"
                 val condition = it.weather[0].main
                 when(condition) {
                     "Rain" -> {
