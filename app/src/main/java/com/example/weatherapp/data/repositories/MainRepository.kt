@@ -5,8 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.weatherapp.data.model.Weather
 import com.example.weatherapp.data.remote.WeatherApiService
+import javax.inject.Inject
 
-class MainRepository(private val apiService: WeatherApiService) {
+class MainRepository @Inject constructor(
+    private val apiService: WeatherApiService
+) {
 
     private val _weather = MutableLiveData<Weather>()
     val weather: LiveData<Weather> = _weather

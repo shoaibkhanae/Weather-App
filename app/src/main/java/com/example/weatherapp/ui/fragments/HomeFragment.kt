@@ -18,12 +18,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.weatherapp.R
-import com.example.weatherapp.data.remote.RetrofitHelper
-import com.example.weatherapp.data.remote.WeatherApiService
-import com.example.weatherapp.data.repositories.MainRepository
 import com.example.weatherapp.databinding.FragmentHomeBinding
 import com.example.weatherapp.ui.viewmodel.MainViewModel
-import com.example.weatherapp.ui.viewmodelfactory.MainViewModelFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Granularity
 import com.google.android.gms.location.LocationCallback
@@ -32,22 +28,17 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 
-
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding
         get() = _binding
 
-    private val api = RetrofitHelper.getRetrofitInstance().create(WeatherApiService::class.java)
-    private val repository = MainRepository(api)
-
-    private val viewModel: MainViewModel by viewModels {
-        MainViewModelFactory(repository)
-    }
+    private val viewModel: MainViewModel by viewModels()
 
     private var fusedLocationProvider: FusedLocationProviderClient? = null
     private val locationRequest: LocationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY,30).apply {
@@ -79,9 +70,16 @@ class HomeFragment : Fragment() {
     @SuppressLint("SimpleDateFormat")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        /**
+         * To get the current date to show
+         */
         val sdf = SimpleDateFormat("dd/M/yyyy")
         val currentDate = sdf.format(Date())
-        
+
+        /**
+         * Perform search with query user enter
+         */
         binding?.etSearch?.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val query = binding?.etSearch?.text.toString()
@@ -91,6 +89,10 @@ class HomeFragment : Fragment() {
             return@setOnEditorActionListener true
         }
 
+        /**
+         * Observing the live data to show the current temperature
+         * changing picture according to weather
+         */
         viewModel.weather.observe(viewLifecycleOwner) {
             binding?.apply {
                 Temperature.text = it.main.temp.toString()
@@ -120,6 +122,7 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+
 
         fusedLocationProvider = LocationServices.getFusedLocationProviderClient(requireContext())
         checkLocationPermission()
